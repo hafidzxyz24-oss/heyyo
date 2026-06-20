@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>heyyo.com</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:white;
+    color:black;
+}
+
+.page{
+    display:none;
+    width:100vw;
+    height:100vh;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+}
+
+.active{
+    display:flex;
+}
+
+#zero{
+    font-size:120px;
+    cursor:pointer;
+    user-select:none;
+}
+
+button{
+    padding:10px 20px;
+    margin:5px;
+    border:1px solid black;
+    background:white;
+    cursor:pointer;
+}
+
+.question{
+    font-size:30px;
+    margin-bottom:20px;
+}
+
+.answers{
+    display:flex;
+    flex-direction:column;
+}
+
+@keyframes glitch{
+    0%{transform:translate(0);}
+    20%{transform:translate(-5px,5px);}
+    40%{transform:translate(5px,-5px);}
+    60%{transform:translate(-5px,0);}
+    80%{transform:translate(5px,0);}
+    100%{transform:translate(0);}
+}
+
+.glitch{
+    animation:glitch 0.1s infinite;
+}
+</style>
+</head>
+
+<body>
+
+<div id="homePage" class="page active">
+    <div id="zero">0</div>
+</div>
+
+<div id="gamePage" class="page">
+    <h1>Let's Play</h1>
+
+    <div id="progress"></div>
+
+    <div class="question" id="question"></div>
+
+    <div class="answers" id="answers"></div>
+</div>
+
+<div id="finishPage" class="page">
+    <h1>Congratulations!</h1>
+    <p>You completed all questions.</p>
+</div>
+
+<script>
+
+const homePage = document.getElementById("homePage");
+const gamePage = document.getElementById("gamePage");
+const finishPage = document.getElementById("finishPage");
+
+let clickCount = 0;
+
+document.getElementById("zero").addEventListener("click",()=>{
+
+    clickCount++;
+
+    if(clickCount >= 5){
+        showPage(gamePage);
+        loadQuestion();
+    }
+
+});
+
+function showPage(page){
+
+    document.querySelectorAll(".page").forEach(p=>{
+        p.classList.remove("active");
+    });
+
+    page.classList.add("active");
+
+}
+
+const questions = [
+
+{
+question:"5 + 3",
+answers:[8,6,10,12],
+correct:8
+},
+
+{
+question:"12 - 7",
+answers:[3,5,8,10],
+correct:5
+},
+
+{
+question:"8 × 4",
+answers:[32,28,9999,36],
+correct:32,
+secret:9999
+},
+
+{
+question:"15 + 10",
+answers:[20,25,30,35],
+correct:25
+},
+
+{
+question:"9 × 2",
+answers:[18,12,16,21],
+correct:18
+}
+
+];
+
+let currentQuestion = 0;
+
+function loadQuestion(){
+
+    const q = questions[currentQuestion];
+
+    document.getElementById("progress").textContent =
+    `Question ${currentQuestion+1}/${questions.length}`;
+
+    document.getElementById("question").textContent =
+    q.question + " = ?";
+
+    const answersDiv =
+    document.getElementById("answers");
+
+    answersDiv.innerHTML = "";
+
+    q.answers.forEach(answer=>{
+
+        const btn = document.createElement("button");
+
+        btn.textContent = answer;
+
+        btn.onclick = ()=>{
+
+            if(q.secret && answer === q.secret){
+                startSecretMode();
+                return;
+            }
+
+            if(answer === q.correct){
+
+                currentQuestion++;
+
+                if(currentQuestion >= questions.length){
+                    showPage(finishPage);
+                }else{
+                    loadQuestion();
+                }
+
+            }else{
+                alert("Wrong answer!");
+            }
+
+        };
+
+        answersDiv.appendChild(btn);
+
+    });
+
+}
+
+function startSecretMode(){
+
+    const first =
+    confirm("Do you want Secret Mode?");
+
+    if(!first) return;
+
+    const second =
+    confirm("Are you sure?");
+
+    if(!second) return;
+
+    const third =
+    confirm("Complete 3 difficult tasks to unlock Secret Mode.");
+
+    if(!third) return;
+
+    secretChallenge();
+
+}
+
+function secretChallenge(){
+
+    const q1 =
+    prompt("Task 1\n\n17 × 13 = ?");
+
+    if(q1 !== "221"){
+        lose();
+        return;
+    }
+
+    const q2 =
+    prompt("Task 2\n\n144 ÷ 12 = ?");
+
+    if(q2 !== "12"){
+        lose();
+        return;
+    }
+
+    const q3 =
+    prompt(`Task 3
+
+2 + 2 = 8
+3 + 3 = 18
+4 + 4 = 32
+
+5 + 5 = ?`);
+
+    if(q3 !== "50"){
+        lose();
+        return;
+    }
+
+    unlockSecret();
+
+}
+
+function lose(){
+
+    document.body.classList.add("glitch");
+
+    setTimeout(()=>{
+
+        document.body.innerHTML = `
+        <div style="
+            width:100vw;
+            height:100vh;
+            background:black;
+            color:#550000;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            flex-direction:column;
+            font-family:Arial;
+        ">
+            <h1 style="font-size:72px;">YOU LOSE</h1>
+            <p>The secret rejects you.</p>
+        </div>
+        `;
+
+    },1200);
+
+}
+
+function unlockSecret(){
+
+    document.body.innerHTML = `
+    <div style="
+        width:100vw;
+        height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        flex-direction:column;
+        font-family:Arial;
+    ">
+        <h1>Secret Mode Unlocked...</h1>
+        <p id="loading">0%</p>
+    </div>
+    `;
+
+    let percent = 0;
+
+    const interval = setInterval(()=>{
+
+        percent += 5;
+
+        document.getElementById("loading").textContent =
+        percent + "%";
+
+        if(percent >= 100){
+
+            clearInterval(interval);
+
+            setTimeout(()=>{
+
+                window.location.href =
+                "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+
+            },1000);
+
+        }
+
+    },100);
+
+}
+
+</script>
+
+</body>
+</html>
