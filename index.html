@@ -45,6 +45,12 @@ body{
     height: 20px;
 }
 
+.gift-container {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
 .gift-btn {
     background: #ff4757;
     color: white;
@@ -52,8 +58,59 @@ body{
     border-radius: 5px;
     font-size: 18px;
     padding: 12px 25px;
-    margin-top: 15px;
     cursor: pointer;
+}
+
+#devilBtn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    font-size: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 9999;
+    padding: 0;
+    margin: 0;
+}
+
+/* KODE BARU: Animasi Glitch Serem dan Agresif */
+@keyframes hardcoreGlitch {
+    0% { transform: translate(0) skew(0deg); background: #000; filter: invert(0) contrast(1); }
+    5% { transform: translate(-15px, 12px) skew(15deg); background: #ff0000; filter: invert(1) contrast(5); }
+    10% { transform: translate(20px, -15px) skew(-20deg); background: #000; filter: hue-rotate(90deg) brightness(3); }
+    15% { transform: translate(-5px, -25px); background: #00ff00; filter: blur(2px); }
+    20% { transform: translate(25px, 15px) skew(30deg); background: #0000ff; filter: invert(0) saturate(10); }
+    25% { transform: translate(-25px, 5px); background: #ffff00; filter: contrast(10); }
+    30% { transform: translate(15px, -15px) skew(-10deg); background: #000; color: #ff0000; }
+    35% { transform: translate(-20px, 20px); background: #ff00ff; filter: hue-rotate(180deg); }
+    40% { transform: translate(30px, -5px) skew(25deg); background: #00ffff; }
+    45% { transform: translate(-10px, -30px); background: #333; filter: invert(1); }
+    50% { transform: translate(5px, 25px) skew(-30deg); background: #900; color: #fff; }
+    55% { transform: translate(-30px, 10px); background: #000; filter: brightness(0.2); }
+    60% { transform: translate(20px, -20px) skew(5deg); background: #ff4400; }
+    65% { transform: translate(-15px, -15px); background: #000; filter: contrast(8) invert(1); }
+    70% { transform: translate(25px, 25px) skew(-15deg); background: #111; color: #ff0000; }
+    75% { transform: translate(-5px, 5px); background: #fff; filter: blur(5px); }
+    80% { transform: translate(-25px, -25px) skew(20deg); background: #000; }
+    85% { transform: translate(15px, 15px); filter: hue-rotate(270deg) saturate(8); }
+    90% { transform: translate(-20px, 5px) skew(-5deg); background: #ff0000; }
+    95% { transform: translate(10px, -10px); background: #000; filter: invert(1); }
+    100% { transform: translate(0) skew(0deg); background: #000; }
+}
+
+.heavy-glitch-active {
+    animation: hardcoreGlitch 0.03s infinite !important; /* Dipercepat jalannya */
+    overflow: hidden !important;
+    user-select: none !important;
+}
+
+/* Bikin semua tombol ikut hancur posisinya pas glitch aktif */
+.heavy-glitch-active button, .heavy-glitch-active h1, .heavy-glitch-active p, .heavy-glitch-active div {
+    color: red !important;
+    border-color: red !important;
+    transform: skew(10deg) rotate(2deg);
+    font-family: 'Courier New', monospace !important;
 }
 /* ============================================================== */
 
@@ -111,7 +168,6 @@ button{
 
 <body>
 
-<!-- TAMBAHAN: Menu Heyyo di Kiri Atas -->
 <div class="navbar">
     <div id="brand-logo">heyyo</div>
 </div>
@@ -120,7 +176,6 @@ button{
     <div id="zero">0</div>
 </div>
 
-<!-- TAMBAHAN: Halaman Pertanyaan Wanna Play Game -->
 <div id="askPage" class="page">
     <h1 class="question">You wanna play game?</h1>
     <div class="choice-container">
@@ -138,7 +193,6 @@ button{
 
     <div class="answers" id="answers"></div>
     
-    <!-- TAMBAHAN: Tempat notifikasi kalau jawaban b indo salah -->
     <div id="feedback-error"></div>
 </div>
 
@@ -146,11 +200,17 @@ button{
     <h1>Congratulations!</h1>
     <p>You completed all questions.</p>
     
-    <!-- TAMBAHAN: Tombol Hadiah di bawah tulisan congratulation -->
-    <button id="giftBtnButton" class="gift-btn" style="display:none;" onclick="window.location.href='https://www.youtube.com/watch?v=a4H0Dcf0rk8'">
-        Hadiah 🎁✨
-    </button>
+    <div id="giftContainer" class="gift-container" style="display:none;">
+        <button class="gift-btn" onclick="window.location.href='https://www.youtube.com/watch?v=a4H0Dcf0rk8'">
+            Hadiah 🎁✨
+        </button>
+        <button class="gift-btn" style="background: #e67e22;" onclick="window.location.href='https://www.youtube.com/watch?v=a4H0Dcf0rk8'">
+            Reward 🎃
+        </button>
+    </div>
 </div>
+
+<button id="devilBtn" style="display: none;">😈</button>
 
 <script>
 
@@ -164,7 +224,8 @@ const askPage = document.getElementById("askPage");
 const btnYes = document.getElementById("btnYes");
 const btnNo = document.getElementById("btnNo");
 const feedbackError = document.getElementById("feedback-error");
-const giftBtnButton = document.getElementById("giftBtnButton");
+const giftContainer = document.getElementById("giftContainer");
+const devilBtn = document.getElementById("devilBtn");
 let isBIndoGame = false; 
 /* ======================= */
 
@@ -176,7 +237,8 @@ document.getElementById("zero").addEventListener("click",()=>{
 
     if(clickCount >= 5){
         isBIndoGame = false; // Memastikan pakai soal bawaan jika lewat klik angka 0
-        giftBtnButton.style.display = "none"; // Sembunyikan tombol hadiah baru untuk game asli
+        giftContainer.style.display = "none"; // Sembunyikan kontainer hadiah untuk game asli
+        devilBtn.style.display = "none"; // Sembunyikan tombol setan
         currentQuestion = 0; // Reset index soal
         showPage(gamePage);
         loadQuestion();
@@ -195,11 +257,17 @@ btnNo.addEventListener("click", () => {
 
 btnYes.addEventListener("click", () => {
     isBIndoGame = true; // Menandai kalau user masuk lewat jalur game B. Indonesia
-    giftBtnButton.style.display = "block"; // Munculkan tombol hadiah baru nanti di akhir
+    giftContainer.style.display = "flex"; // Munculkan kontainer hadiah berisi 2 tombol
+    devilBtn.style.display = "none"; // Belum muncul sampai game selesai
     currentQuestion = 0; // Reset index soal
     questions = bIndoQuestions; // Ganti kumpulan soal ke versi Bahasa Indonesia
     showPage(gamePage);
     loadQuestion();
+});
+
+/* TAMBAHAN LOGIKA TOMBOL SETAN GLITCH PARAH */
+devilBtn.addEventListener("click", () => {
+    document.body.classList.add("heavy-glitch-active");
 });
 /* ================================= */
 
@@ -319,6 +387,10 @@ function loadQuestion(){
 
                 if(currentQuestion >= questions.length){
                     showPage(finishPage);
+                    // TAMBAHAN: Jika game B. Indonesia selesai, munculkan tombol setan di pojok kiri bawah
+                    if(isBIndoGame) {
+                        devilBtn.style.display = "block";
+                    }
                 }else{
                     loadQuestion();
                 }
